@@ -21,9 +21,14 @@ A CLI-based traffic analyser powered by the Scapy python library. Dissects packe
 
 https://drive.google.com/file/d/1i3saocDss4sxmB9DhOBYdZ7kGAD7j5s4/view?usp=sharing
 ## Screenshots
+1. Choosing the interface for capture
 
 ![Choosing Interface](https://github.com/Rhea212/sniffy-pkt-dissector/blob/main/assets/sniffer_ss1.jpg)
 
+2. Dissection of a packet according to the TCP/IP Layer
+
 ![Detailed View](https://github.com/Rhea212/sniffy-pkt-dissector/blob/main/assets/sniffer_ss2.jpg)
+
+3. Filtering based on destination address
 
 ![Filtering](https://github.com/Rhea212/sniffy-pkt-dissector/blob/main/assets/sniffer_ss3.jpg)
