@@ -1,7 +1,7 @@
 
 # Sniffy - An Advanced Packet Dissector
 
-A CLI-based traffic analyser powered by the Scapy python library. Dissects packets according to the TCP/IP Layer.
+A CLI-based traffic analyser powered by the Scapy python library. Dissects packets according to the TCP/IP Model.
 
 
 ## Features
