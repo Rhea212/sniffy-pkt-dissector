@@ -14,6 +14,7 @@ A CLI-based traffic analyser powered by the Scapy python library. Dissects packe
 - Converting network capture into a PCAP file for future analysis
 - Improving the output by including more information like timestamp and ports
 - Provide traffic analysis by detecting and flagging malicious activities, and detecting interesting keywords in HTTP traffic
+- Classify traffic based on criteria like type and direction
 
 
 
