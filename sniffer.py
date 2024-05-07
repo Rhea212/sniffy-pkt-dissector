@@ -29,6 +29,10 @@ print(sc.conf.ifaces)
 # TC-> Capturing VM traffic
 # https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol#Control_messages - ICMP 
 # Show port number, flags?
+# Data packets - green; management pkts - blue. HTTP packets - red
+def highlight(text, color_code):
+    return f"\033[{color_code}m{text}\033[0m"
+
 def display_packets(pkt, context="sniff"):
     if context=="sniff":
         global counter
@@ -44,6 +48,15 @@ def display_packets(pkt, context="sniff"):
                 protocol=sc.conf.l2types[pkt['Ethernet'].type].__name__
             except:
                 protocol="Error"
+
+    try:
+        my_ip = sc.get_if_addr(sc.conf.iface)
+        try:
+            my_mac= sc.get_if_hwaddr(sc.conf.iface)
+        except:
+            my_mac=""
+    except:
+        my_ip = ""
     try:
         src=pkt['IP'].src
         dst=pkt['IP'].dst
@@ -55,27 +68,43 @@ def display_packets(pkt, context="sniff"):
         except:
             src='-'
             dst='-'
+    if src == my_ip or src == my_mac:
+        dir = "->"
+    elif dst == my_ip or dst == my_mac:
+        dir = "<-"
+    else:
+        dir=""
     try:
         length=pkt.len
     except AttributeError:
         length=0
+   
     try:
         payload=pkt.load
       
     except:
         if protocol=='ARP':
             if pkt['ARP'].op==1:
-                print(f"{str(counter).ljust(10)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}", end="")
-                print(f"Who has {pkt['ARP'].pdst}?".ljust(50))
+                # https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
+                print(f"\033[48;5;6;38;5;0m{str(counter).ljust(10)}{dir.ljust(5)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}", end="")
+                print(f"Who has {pkt['ARP'].pdst}?".ljust(shutil.get_terminal_size().columns - 75), end="")
+                print(f"\033[0m")
             elif pkt['ARP'].op==2:
-                print(f"{str(counter).ljust(10)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}{pkt['ARP'].psrc} is at {pkt['Ethernet'].src.ljust(50)}")
+                print(f"\033[48;5;6;38;5;0m{str(counter).ljust(10)}{dir.ljust(5)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}{pkt['ARP'].psrc} is at {pkt['Ethernet'].src.ljust(shutil.get_terminal_size().columns - 75)}", end="")
+                print(f"\033[0m")
+        
             else:
-                print(f"{str(counter).ljust(10)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}", end="")
-
+                print(f"\033[48;5;6;38;5;0m{str(counter).ljust(10)}{dir.ljust(5)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}\033[0m", end="")
         else:
-            print(f"{str(counter).ljust(10)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}")
+                print(f"{str(counter).ljust(10)}{dir.ljust(5)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}")
     else:
-        print(f"{str(counter).ljust(10)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}{COLOR_CYAN}{''.join([chr(byte) if 31 < byte < 127 else '·' for byte in payload[:shutil.get_terminal_size().columns - 70]]).ljust(100)}{COLOR_RESET}")
+        if protocol=="ICMP":
+            print(f"\033[48;5;6;38;5;0m{str(counter).ljust(10)}{dir.ljust(5)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}{''.join([chr(byte) if 31 < byte < 127 else '·' for byte in payload[:shutil.get_terminal_size().columns - 75]]).ljust(100)}\033[0m")
+        if pkt['TCP']:
+            if pkt['TCP'].dport==80 or pkt['TCP'].sport==80:
+                print(f"\033[48;5;9;38;5;0m{str(counter).ljust(10)}{dir.ljust(5)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}{''.join([chr(byte) if 31 < byte < 127 else '·' for byte in payload[:shutil.get_terminal_size().columns - 75]]).ljust(100)}\033[0m")
+        else:
+            print(f"\033[48;5;10;38;5;0m{str(counter).ljust(10)}{dir.ljust(5)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}{''.join([chr(byte) if 31 < byte < 127 else '·' for byte in payload[:shutil.get_terminal_size().columns - 75]]).ljust(100)}\033[0m")
     
         
 def capture_packets(interface):
@@ -84,7 +113,7 @@ def capture_packets(interface):
     print("Press Ctrl+C to stop capturing.")
     print(COLOR_RESET)
     print(COLOR_YELLOW)
-    print("Sr. No.".ljust(10), "Protocol".ljust(10), "Source".ljust(20), "Destination".ljust(20), "Length".ljust(10), "Payload".ljust(100), sep='')
+    print("Sr. No.".ljust(15), "Protocol".ljust(10), "Source".ljust(20), "Destination".ljust(20), "Length".ljust(10), "Payload".ljust(100), sep='')
     print(COLOR_RESET)
     pkt_capture = sc.sniff(iface=interface, prn=display_packets)
     while(True):
