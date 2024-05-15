@@ -24,7 +24,7 @@ https://drive.google.com/file/d/1i3saocDss4sxmB9DhOBYdZ7kGAD7j5s4/view?usp=shari
 ## Screenshots
 1. Choosing the interface for capture
 
-![Choosing Interface](https://github.com/Rhea212/sniffy-pkt-dissector/blob/main/assets/sniffer_ss1.jpg)
+![Choosing Interface](https://github.com/Rhea212/sniffy-pkt-dissector/blob/main/assets/sniffer_ss1.png)
 
 2. Dissection of a packet according to the TCP/IP Model
 
