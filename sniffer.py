@@ -100,7 +100,8 @@ def display_packets(pkt, context="sniff"):
     else:
         if protocol=="ICMP":
             print(f"\033[48;5;6;38;5;0m{str(counter).ljust(10)}{dir.ljust(5)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}{''.join([chr(byte) if 31 < byte < 127 else '·' for byte in payload[:shutil.get_terminal_size().columns - 75]]).ljust(100)}\033[0m")
-        if pkt['TCP']:
+        # if pkt['TCP']:
+        if 'TCP' in pkt:
             if pkt['TCP'].dport==80 or pkt['TCP'].sport==80:
                 print(f"\033[48;5;9;38;5;0m{str(counter).ljust(10)}{dir.ljust(5)}{protocol.ljust(10)}{src.ljust(20)}{dst.ljust(20)}{str(length).ljust(10)}{''.join([chr(byte) if 31 < byte < 127 else '·' for byte in payload[:shutil.get_terminal_size().columns - 75]]).ljust(100)}\033[0m")
         else:
@@ -245,7 +246,8 @@ def capture_packets(interface):
                     pass
                 else:
                     print("Load decoded as ASCII:")
-                    ascii_representation = ''.join([chr(byte) if 31 < byte < 127 else '·' for byte in payload])
+                    # ascii_representation = ''.join([chr(byte) if 31 < byte < 127 else '·' for byte in payload])
+                    ascii_representation = ''.join([chr(byte) if 31 < byte < 127 or byte in (10, 13) else '·' for byte in payload])
                     print(COLOR_CYAN)
                     print(ascii_representation)
                     print(COLOR_RESET)
